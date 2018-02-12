@@ -1,0 +1,8 @@
+{
+  "dev": [
+    "videoplan-e0de3"
+  ],
+   "staging": [
+    "videoplanstaging"
+    ]
+}

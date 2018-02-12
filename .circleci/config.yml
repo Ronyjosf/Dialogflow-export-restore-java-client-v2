@@ -1,0 +1,40 @@
+version: 2
+jobs:
+  sample_integration_test:
+    working_directory: ~/dialogflow-java
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - checkout
+      - run:
+          name: Create Google Application Credential file
+          command: |
+            echo ${GOOGLE_APPLICATION_CREDENTIALS_CONTENT} > /tmp/key.json
+      - run:
+          name: Run integration test
+          environment:
+            GCLOUD_PROJECT: ${GCLOUD_PROJECT}
+            GOOGLE_APPLICATION_CREDENTIALS: /tmp/key.json
+          command: |
+            cd samples
+            mvn clean verify
+      - run:
+          name: Delete Google Application Credential file
+          when: always
+          command: |
+            rm /tmp/key.json
+      - store_test_results:
+          path: samples/target/failsafe-reports
+workflows:
+  version: 2
+  sample_build_integration_test:
+    jobs:
+      - sample_integration_test:
+          filters:
+            branches:
+              only:
+                - master
+                - circleci-config
+                - dialogflow-ci-integration
+            tags:
+              only: /^v[\d.]+$/
